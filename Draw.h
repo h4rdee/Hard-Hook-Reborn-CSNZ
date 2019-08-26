@@ -1,11 +1,13 @@
 #pragma once
 
+#define _CRT_SECURE_NO_WARNINGS
+
 #include "OpenGL32.h"
 #include "Utils.h"
 #include "Structs.h"
 
-extern char* AimPreset;
-extern char* AimTeam;
+extern const char* AimPreset;
+extern const char* AimTeam;
 extern GLuint base;
 
 extern cvars_s cvar;
@@ -29,8 +31,7 @@ public:
 	void Line(int x1, int y1, int x2, int y2, int lw, int red, int green, int blue, int alpha);
 	void Rect(int x, int y, int w, int h, int lw, int red, int green, int blue, int alpha);
 	void MenuForm(int x, int y, int w, int h, int lw, int lineoffset, int lineoffset2, int red, int green, int blue, int alpha);
-	void Text(int x, int y, int red, int green, int blue, const char *fmt, ...);
-	void HudStringCenter(int x, int y, int r, int g, int b, const char* fmt, ...);
+	void Text(int x, int y, int red, int green, int blue, const char* fmt, ...);
 	void Time(int x, int y, int red, int green, int blue);
 	void Crosshair(int red, int green, int blue, int alpha, int size, int type);
 	void AimPoint(float x, float y);

@@ -1,7 +1,7 @@
 
 #include "Config.h"
 
-char* Settings::GetDirectoryFile(char *filename) //получает путь к файлу
+char* Settings::GetDirectoryFile(const char* filename) //получает путь к файлу
 {
 	static char path[320];
 	strcat_s(path, filename);
@@ -21,8 +21,6 @@ void Settings::Init() { //первоначальные настройки
 	cvar.aimdiff = 1.55f; cvar.aimheight_s = 4.5f; cvar.aimheight_d = (float)(cvar.aimheight_s * cvar.aimdiff);
 	cvar.espdebug = 0; cvar.debug = 0; cvar.aimsmooth = 0; cvar.aimpreset = 1; AimPreset = "Head"; cvar.rcs = 0;
 	cvar.target = 0; AimTeam = "Everyone";
-	/*Developer stuff*/
-	cvar.autospam = 1; cvar.fullbright = 1;
 	Log("[Settings] Default vars were defined");
 }
 

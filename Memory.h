@@ -5,7 +5,7 @@
 
 using namespace std;
 
-extern void __cdecl Log(const char * fmt, ...);
+extern void __cdecl Log(const char* fmt, ...);
 
 extern HANDLE processHandle;
 
@@ -23,7 +23,7 @@ public:
 	}
 
 	template <typename Type>
-	static bool IsValidPtr(Type* ptr)
+	static bool IsValidPtr(Type * ptr)
 	{
 		return (ptr && sizeof(ptr)) ? true : false;
 	}
@@ -104,9 +104,9 @@ public:
 	}
 };
 
-void *DetourFunction(BYTE *src, const BYTE *dst, const int len)
+void* DetourFunction(BYTE* src, const BYTE* dst, const int len)
 {
-	BYTE *jmp = (BYTE*)malloc(len + 5);
+	BYTE* jmp = (BYTE*)malloc(len + 5);
 	DWORD dwBack;
 
 	VirtualProtect(src, len, PAGE_EXECUTE_READWRITE, &dwBack);
@@ -116,7 +116,7 @@ void *DetourFunction(BYTE *src, const BYTE *dst, const int len)
 	*(DWORD*)(jmp + 1) = (DWORD)(src + len - jmp) - 5;
 	src[0] = 0xE9;
 	*(DWORD*)(src + 1) = (DWORD)(dst - src) - 5;
-	for (int i = 5; i<len; i++)
+	for (int i = 5; i < len; i++)
 		src[i] = 0x90;
 	VirtualProtect(src, len, dwBack, &dwBack);
 	return (jmp - len);

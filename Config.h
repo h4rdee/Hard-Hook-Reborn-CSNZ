@@ -10,8 +10,9 @@ extern colors_s colors;
 extern keys_s   keys;
 extern menu_s   menu;
 
-extern void __cdecl Log(const char * fmt, ...);
-extern char *AimPreset, *AimTeam;
+extern void __cdecl Log(const char* fmt, ...);
+extern const char* AimPreset;
+extern const char* AimTeam;
 
 using namespace std;
 
@@ -29,7 +30,7 @@ public:
 	void Init();
 	void LoadSettings();
 	void SaveSettings();
-	char* GetDirectoryFile(char *filename);
+	char* GetDirectoryFile(const char* filename);
 
 private:
 	bool ConfigFound;

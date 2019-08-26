@@ -4,27 +4,13 @@
 #include "Draw.h"
 bool bClose;
 
-void DrawGL::HudStringCenter(int x, int y, int r, int g, int b, const char* fmt, ...) //рисует центрированную hud строку
-{
-	va_list va_alist;
-	char buf[256] = "";
-	va_start(va_alist, fmt);
-	_vsnprintf(buf, sizeof(buf), fmt, va_alist);
-	va_end(va_alist);
-	int length, height;
-	g_Engine.pfnDrawConsoleStringLen(buf, &length, &height);
-	x = x - length / 2;
-	g_Engine.pfnDrawSetTextColor(/*(float)*/r / 255.0,/*(float)*/g / 255.0,/*(float)*/b / 255.0);
-	g_Engine.pfnDrawConsoleString(x, y, buf);
-}
-
 void DrawGL::AimPoint(float x, float y) { //рисует точки, куда происходит наводка
 	Utils.SaveState();
 	(*orig_glColor4ub)(250, 250, 250, 250);
 	(*orig_glPointSize)(3.0f);
 	(*orig_glEnable)(GL_POINT_SMOOTH);
 	(*orig_glBegin)(GL_POINTS);
-		(*orig_glVertex2f)(x, y);
+	(*orig_glVertex2f)(x, y);
 	(*orig_glEnd)();
 	(*orig_glDisable)(GL_POINT_SMOOTH);
 	Utils.RestoreState();
@@ -65,21 +51,21 @@ void DrawGL::Crosshair(int red, int green, int blue, int alpha, int size, int ty
 		(*orig_glEnable)(GL_POINT_SMOOTH);
 		(*orig_glPointSize)((float)size);
 		(*orig_glBegin)(GL_POINTS);
-			(*orig_glVertex2i)(vp[2] / 2, vp[3] / 2);
+		(*orig_glVertex2i)(vp[2] / 2, vp[3] / 2);
 		(*orig_glEnd)();
 		(*orig_glDisable)(GL_POINT_SMOOTH);
 		break;
 	case 2:
 		(*orig_glLineWidth)(1.5f);
 		(*orig_glBegin)(GL_LINES);
-			(*orig_glVertex2i)(vp[2] / 2, (vp[3] / 2) - (size * 2));
-			(*orig_glVertex2i)(vp[2] / 2, (vp[3] / 2) - 2);
-			(*orig_glVertex2i)(vp[2] / 2, (vp[3] / 2) + 2);
-			(*orig_glVertex2i)(vp[2] / 2, (vp[3] / 2) + (size * 2));
-			(*orig_glVertex2i)((vp[2] / 2) - (size * 2), vp[3] / 2);
-			(*orig_glVertex2i)((vp[2] / 2) - 2, vp[3] / 2);
-			(*orig_glVertex2i)((vp[2] / 2) + 2, vp[3] / 2);
-			(*orig_glVertex2i)((vp[2] / 2) + (size * 2), vp[3] / 2);
+		(*orig_glVertex2i)(vp[2] / 2, (vp[3] / 2) - (size * 2));
+		(*orig_glVertex2i)(vp[2] / 2, (vp[3] / 2) - 2);
+		(*orig_glVertex2i)(vp[2] / 2, (vp[3] / 2) + 2);
+		(*orig_glVertex2i)(vp[2] / 2, (vp[3] / 2) + (size * 2));
+		(*orig_glVertex2i)((vp[2] / 2) - (size * 2), vp[3] / 2);
+		(*orig_glVertex2i)((vp[2] / 2) - 2, vp[3] / 2);
+		(*orig_glVertex2i)((vp[2] / 2) + 2, vp[3] / 2);
+		(*orig_glVertex2i)((vp[2] / 2) + (size * 2), vp[3] / 2);
 		(*orig_glEnd)();
 		break;
 	}
@@ -92,7 +78,7 @@ void DrawGL::DebugEsp(float x, float y, long vertcount) { //рисует отладочное ес
 	(*orig_glColor4ub)(250, 250, 250, 250);
 	if (cvar.espdebug) {
 		char str[25];
-		itoa(vertcount, str, 10);
+		_itoa(vertcount, str, 10);
 		Text(x, y, 255, 255, 255, "Vertices: %s", str);
 	}
 	Utils.RestoreState();
@@ -105,8 +91,8 @@ void DrawGL::Line(int x1, int y1, int x2, int y2, int lw, int red, int green, in
 	(*orig_glColor4ub)(red, green, blue, alpha);
 	(*orig_glLineWidth)((float)lw);
 	(*orig_glBegin)(GL_LINES);
-		(*orig_glVertex2i)(x1, y1);
-		(*orig_glVertex2i)(x2, y2);
+	(*orig_glVertex2i)(x1, y1);
+	(*orig_glVertex2i)(x2, y2);
 	(*orig_glEnd)();
 	(*orig_glColor3f)(1.0f, 1.0f, 1.0f);
 	(*orig_glEnable)(GL_TEXTURE_2D);
@@ -532,23 +518,8 @@ void DrawGL::MenuItems(int x, int y, int menuX1, int menuX2) { //рисует итемы ме
 	else if (menu.count != 19)
 		Text(x, y + 180, 255, 255, 255, "Zoom Factor: %i", cvar.zoomfactor * 5);
 
-	if (menu.count == 20)
-	{
-		if (menu.select)
-		{
-			menu.select = false;
-			cvar.autospam = Utils.ChangeCvar(cvar.autospam);
-		}
-		if (cvar.autospam) { Text(x, y + 190, 0, 255, 0, "Autospam: On"); }
-		else if (!cvar.autospam) { Text(x, y + 190, 0, 255, 0, "Autospam: Off"); }
-	}
-	else if (menu.count != 20)
-	{
-		if (cvar.autospam) { Text(x, y + 190, 255, 255, 255, "Autospam: On"); }
-		else if (!cvar.autospam) { Text(x, y + 190, 255, 255, 255, "Autospam: Off"); }
-	}
 
-	if (menu.count > 20) { menu.count = 1; }
+	if (menu.count > 19) { menu.count = 1; }
 	else if (menu.count < 1) { menu.count = 20; }
 }
 
@@ -576,17 +547,17 @@ bool DrawGL::PlayerEsp(float x, float y, float z, float x2, float y2, float z2, 
 		if (cvar.esptriangles) {
 			(*orig_glColor4ub)(teamColor[0], teamColor[1], teamColor[2], teamColor[3]);
 			(*orig_glBegin)(GL_TRIANGLES);         //треугольник
-				(*orig_glVertex2f)(x, y + 0.06);
-				(*orig_glVertex2f)(x - 0.02, y + 0.1);
-				(*orig_glVertex2f)(x + 0.02, y + 0.1);
+			(*orig_glVertex2f)(x, y + 0.06);
+			(*orig_glVertex2f)(x - 0.02, y + 0.1);
+			(*orig_glVertex2f)(x + 0.02, y + 0.1);
 			(*orig_glEnd)();
 
 			(*orig_glColor4ub)(0, 0, 0, 255);
 			(*orig_glLineWidth)(1.5f);
 			(*orig_glBegin)(GL_LINE_STRIP);		   //обводка
-				(*orig_glVertex2f)(x, y + 0.06);
-				(*orig_glVertex2f)(x - 0.02, y + 0.1);
-				(*orig_glVertex2f)(x + 0.02, y + 0.1);
+			(*orig_glVertex2f)(x, y + 0.06);
+			(*orig_glVertex2f)(x - 0.02, y + 0.1);
+			(*orig_glVertex2f)(x + 0.02, y + 0.1);
 			(*orig_glEnd)();
 		}
 		if (cvar.espbox) {
@@ -605,11 +576,11 @@ bool DrawGL::PlayerEsp(float x, float y, float z, float x2, float y2, float z2, 
 				(*orig_glColor4ub)(teamColor[0], teamColor[1], teamColor[2], teamColor[3]);
 				(*orig_glLineWidth)(1.4f);
 				(*orig_glBegin)(GL_LINE_STRIP);
-					(*orig_glVertex2f)(x - width, y);
-					(*orig_glVertex2f)(x + width, y);
-					(*orig_glVertex2f)(x + width, y2);
-					(*orig_glVertex2f)(x - width, y2);
-					(*orig_glVertex2f)(x - width, y);
+				(*orig_glVertex2f)(x - width, y);
+				(*orig_glVertex2f)(x + width, y);
+				(*orig_glVertex2f)(x + width, y2);
+				(*orig_glVertex2f)(x - width, y2);
+				(*orig_glVertex2f)(x - width, y);
 				(*orig_glEnd)();
 				bClose = true;
 			}
@@ -621,8 +592,8 @@ bool DrawGL::PlayerEsp(float x, float y, float z, float x2, float y2, float z2, 
 			(*orig_glBegin)(GL_LINES);
 			(*orig_glEnable)(GL_BLEND);
 			(*orig_glBlendFunc)(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-				(*orig_glVertex2f)(0.0f, -1.0f);					//1 число - половина высоты
-				(*orig_glVertex2f)((x + x2) / 2, (y + y2) / 2);		//среднее арифметическое между головой и пяткой
+			(*orig_glVertex2f)(0.0f, -1.0f);					//1 число - половина высоты
+			(*orig_glVertex2f)((x + x2) / 2, (y + y2) / 2);		//среднее арифметическое между головой и пяткой
 			(*orig_glEnd)();
 		}
 	}
@@ -636,25 +607,25 @@ void DrawGL::Rect(int x, int y, int w, int h, int lw, int red, int green, int bl
 	(*orig_glBlendFunc)(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	(*orig_glColor4ub)(red, green, blue, alpha);
 	(*orig_glBegin)(GL_QUADS);
-		(*orig_glVertex2i)(x, y);
-		(*orig_glVertex2i)(x + w, y);
-		(*orig_glVertex2i)(x + w, y + h);
-		(*orig_glVertex2i)(x, y + h);
+	(*orig_glVertex2i)(x, y);
+	(*orig_glVertex2i)(x + w, y);
+	(*orig_glVertex2i)(x + w, y + h);
+	(*orig_glVertex2i)(x, y + h);
 	(*orig_glEnd)();
 	(*orig_glColor4ub)(255, 255, 255, 255);
 	(*orig_glLineWidth)(lw);
 	(*orig_glBegin)(GL_LINES);
-		(*orig_glVertex2d)(x, y);
-		(*orig_glVertex2d)(x + w, y);
-		(*orig_glVertex2d)(x + w, y + h);
-		(*orig_glVertex2d)(x, y + h);
-		(*orig_glVertex2d)(x, y);
+	(*orig_glVertex2d)(x, y);
+	(*orig_glVertex2d)(x + w, y);
+	(*orig_glVertex2d)(x + w, y + h);
+	(*orig_glVertex2d)(x, y + h);
+	(*orig_glVertex2d)(x, y);
 	(*orig_glEnd)();
 	(*orig_glEnable)(GL_TEXTURE_2D);
 	(*orig_glDisable)(GL_BLEND);
 }
 
-void DrawGL::Text(int x, int y, int red, int green, int blue, const char *fmt, ...) { //рисует форматированный текст
+void DrawGL::Text(int x, int y, int red, int green, int blue, const char* fmt, ...) { //рисует форматированный текст
 	char		text[256];
 	va_list		ap;
 	GLfloat     curcolor[4], position[4];
@@ -698,7 +669,7 @@ void DrawGL::Text(int x, int y, int red, int green, int blue, const char *fmt, .
 void DrawGL::Time(int x, int y, int red, int green, int blue) { //рисует строку со временем
 	SYSTEMTIME SysTime;
 	GetLocalTime(&SysTime);
-	char *timestring = "%02d:%02d:%02d";
+	const char* timestring = "%02d:%02d:%02d";
 	Text(x, y, red, green, blue, timestring, SysTime.wHour, SysTime.wMinute, SysTime.wSecond);
 }
 
@@ -712,7 +683,7 @@ void DrawGL::WeaponEsp(float x, float y, float x2, float y2, long vertcount) { /
 	(*orig_glPointSize)(5.0f);
 	(*orig_glEnable)(GL_POINT_SMOOTH);
 	(*orig_glBegin)(GL_POINTS);
-		(*orig_glVertex2f)((x + x2) / 2, (y + y2) / 2);
+	(*orig_glVertex2f)((x + x2) / 2, (y + y2) / 2);
 	(*orig_glEnd)();
 	(*orig_glDisable)(GL_POINT_SMOOTH);
 	Utils.RestoreState();

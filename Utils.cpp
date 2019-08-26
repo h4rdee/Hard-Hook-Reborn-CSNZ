@@ -1,12 +1,5 @@
 
 #include "Utils.h"
-#include "SDK.h"
-
-extern SCREENINFO g_Screen;
-extern cl_clientfunc_t *g_pClient;
-extern cl_enginefunc_t *g_pEngine;
-extern cl_clientfunc_t g_Client;
-extern cl_enginefunc_t g_Engine;
 
 #define CompareMemory(Buff1, Buff2, Size) __comparemem((const UCHAR *)Buff1, (const UCHAR *)Buff2, (UINT)Size)
 #define FindMemoryClone(Start, End, Clone, Size) __findmemoryclone((const ULONG)Start, (const ULONG)End, (const ULONG)Clone, (UINT)Size)
@@ -149,12 +142,13 @@ void HackUtils::HandleKey(int key) {
 			}
 			break;
 		}
-	} else if (!GetAsyncKeyState(key)) {
+	}
+	else if (!GetAsyncKeyState(key)) {
 		switch (key) {
-			case VK_UP: keys.up = false; break;
-			case VK_DOWN: keys.down = false; break;
-			case VK_RIGHT: keys.right = false; break;
-			case VK_LEFT: keys.left = false; break;
+		case VK_UP: keys.up = false; break;
+		case VK_DOWN: keys.down = false; break;
+		case VK_RIGHT: keys.right = false; break;
+		case VK_LEFT: keys.left = false; break;
 		}
 	}
 }
@@ -231,7 +225,7 @@ bool HackUtils::isPointVisible(GLdouble x, GLdouble y, GLdouble z) {
 	if (gluProject(x, y, z, mm, pm, vp, &winX, &winY, &winZ) == GL_TRUE)
 	{
 		(*orig_glReadPixels)((int)winX, (int)winY, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &pix);
-			return pix > winZ ? true : false;
+		return pix > winZ ? true : false;
 	}
 	else
 		return false;
@@ -330,274 +324,4 @@ void HackUtils::UnvalidVertex() {
 			team[vx].verts[vn] = -1;
 		}
 	}
-}
-
-bool HackUtils::Validate(HINSTANCE hinstDll) {
-	CHAR szPath[MAX_PATH];
-	GetModuleFileName(hinstDll, szPath, MAX_PATH);
-	return (strstr(szPath, "opengl")) ? false : true;
-}
-
-bool HackUtils::GetWorldToScreenMatrix(WorldToScreenMatrix_t *pWorldToScreenMatrix, float *flOrigin, float *flOut)
-{
-	flOut[0] = pWorldToScreenMatrix->flMatrix[0][0] * flOrigin[0] + pWorldToScreenMatrix->flMatrix[1][0] * flOrigin[1] + pWorldToScreenMatrix->flMatrix[2][0] * flOrigin[2] + pWorldToScreenMatrix->flMatrix[3][0];
-	flOut[1] = pWorldToScreenMatrix->flMatrix[0][1] * flOrigin[0] + pWorldToScreenMatrix->flMatrix[1][1] * flOrigin[1] + pWorldToScreenMatrix->flMatrix[2][1] * flOrigin[2] + pWorldToScreenMatrix->flMatrix[3][1];
-	float flZ = pWorldToScreenMatrix->flMatrix[0][3] * flOrigin[0] + pWorldToScreenMatrix->flMatrix[1][3] * flOrigin[1] + pWorldToScreenMatrix->flMatrix[2][3] * flOrigin[2] + pWorldToScreenMatrix->flMatrix[3][3];
-
-	if (flZ != 0.0f)
-	{
-		float flTmp = 1.0f / flZ;
-		flOut[0] *= flTmp;
-		flOut[1] *= flTmp;
-	}
-
-	return (flZ <= 0.0f);
-}
-
-bool HackUtils::WorldToScreen(float *flOrigin, float *flOut)
-{
-	WorldToScreenMatrix_t *pWorldToScreenMatrix = (WorldToScreenMatrix_t*)((DWORD)GetModuleHandle("hw.dll") + 0xE956A0);
-	if (!GetWorldToScreenMatrix(pWorldToScreenMatrix, flOrigin, flOut))
-	{
-		flOut[0] = (flOut[0] * (ScreenInfo.iWidth / 2)) + ScreenInfo.iWidth / 2;
-		flOut[1] = (-flOut[1] * (ScreenInfo.iHeight / 2)) + ScreenInfo.iHeight / 2;
-		return true;
-	}
-	return false;
-}
-
-bool VHookTable::HookTable(DWORD dwTablePtrPtr)
-{
-	DWORD dwIndexFunction = 0;
-
-	dwPtrPtrTable = dwTablePtrPtr;
-	dwPtrOldTable = *(PDWORD)dwPtrPtrTable;
-
-	for (dwIndexFunction = 0; ((PDWORD)*(PDWORD)dwTablePtrPtr)[dwIndexFunction]; dwIndexFunction++)
-		if (IsBadCodePtr((FARPROC)((PDWORD)*(PDWORD)dwTablePtrPtr)[dwIndexFunction]))
-			break;
-
-	dwSizeTable = sizeof(DWORD) * dwIndexFunction;
-
-	if (dwIndexFunction && dwSizeTable)
-	{
-		dwPtrNewTable = (DWORD)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, dwSizeTable);
-		memcpy((PVOID)dwPtrNewTable, (PVOID)*(PDWORD)dwTablePtrPtr, dwSizeTable);
-
-		*(PDWORD)dwTablePtrPtr = dwPtrNewTable;
-
-		return true;
-	}
-
-	return false;
-}
-
-void VHookTable::HookIndex(DWORD dwIndex, PVOID pAddress)
-{
-	((PDWORD)dwPtrNewTable)[dwIndex] = (DWORD)pAddress;
-}
-
-DWORD VHookTable::RetHookIndex(DWORD dwIndex, PVOID pAddress)
-{
-	DWORD old = ((PDWORD)dwPtrNewTable)[dwIndex];
-	((PDWORD)dwPtrNewTable)[dwIndex] = (DWORD)pAddress;
-	return old;
-}
-
-void VHookTable::UnHook()
-{
-	if (dwPtrPtrTable)
-		*(PDWORD)dwPtrPtrTable = dwPtrOldTable;
-}
-
-void VHookTable::ReHook()
-{
-	if (dwPtrPtrTable)
-		*(PDWORD)dwPtrPtrTable = dwPtrNewTable;
-}
-
-bool AutoOffset::GetRendererInfo()
-{
-	/*while (!(HwBase && ClBase && HlBase))
-	{
-		HwBase = (DWORD)GetModuleHandleA("hw.dll");
-		ClBase = (DWORD)GetModuleHandleA("client.dll");
-		HlBase = (DWORD)GetModuleHandleA(NULL);
-
-		Sleep(100);
-	}*/
-
-	HwBase = (DWORD)GetModuleHandleA("hw.dll");
-	ClBase = (DWORD)GetModuleHandleA("client.dll");
-	HlBase = (DWORD)GetModuleHandleA(NULL);
-
-	HwSize = (DWORD)GetModuleSize(HwBase);
-	HwEnd = HwBase + HwSize - 1;
-
-	ClSize = (DWORD)GetModuleSize(ClBase);
-	ClEnd = ClBase + ClSize - 1;
-
-	HlSize = (DWORD)GetModuleSize(HlBase);
-	HlEnd = HlBase + HlSize - 1;
-
-	char buf[256];
-	sprintf(buf, "\r\n\r\nModules Info:\r\n\r\nHWBase: 0x%X\r\nHWSize: 0x%X\r\nCLBase: 0x%X\r\nCLSize: 0x%X\r\nHLBase: 0x%X\r\nHLSize: 0x%X\r\n", HwBase, HwSize, ClBase, ClSize, HlBase, HlSize);
-	Log(buf);
-	//MessageBox(0, buf, "HardHook", 0);
-
-	bool bFound = HwBase && ClBase && HlBase;
-	bFound ? Log("[Hooking] Modules found") : Log("[Hooking] Modules not found");
-	return bFound;
-}
-
-unsigned AutoOffset::Absolute(DWORD Addr)
-{
-	return Cardinal(Addr) + *(PCardinal)(Addr)+4;
-}
-
-DWORD AutoOffset::GetModuleSize(const DWORD Address)
-{
-	return PIMAGE_NT_HEADERS(Address + (DWORD)PIMAGE_DOS_HEADER(Address)->e_lfanew)->OptionalHeader.SizeOfImage;
-}
-
-DWORD AutoOffset::FarProc(const DWORD Address, DWORD LB, DWORD HB)
-{
-	return ((Address < LB) || (Address > HB));
-}
-
-BOOL AutoOffset::__comparemem(const UCHAR *buff1, const UCHAR *buff2, UINT size)
-{
-	for (UINT i = 0; i < size; i++, buff1++, buff2++)
-	{
-		if ((*buff1 != *buff2) && (*buff2 != 0xFF))
-			return FALSE;
-	}
-	return TRUE;
-}
-
-ULONG AutoOffset::__findmemoryclone(const ULONG start, const ULONG end, const ULONG clone, UINT size)
-{
-	for (ULONG ul = start; (ul + size) < end; ul++)
-	{
-		if (CompareMemory(ul, clone, size))
-			return ul;
-	}
-	return NULL;
-}
-
-ULONG AutoOffset::__findreference(const ULONG start, const ULONG end, const ULONG address)
-{
-	UCHAR Pattern[5];
-	Pattern[0] = 0x68;
-	*(ULONG*)&Pattern[1] = address;
-	return FindMemoryClone(start, end, Pattern, sizeof(Pattern) - 1);
-}
-
-PVOID AutoOffset::ClientFuncs()
-{
-	DWORD Address = (DWORD)FindMemoryClone(HwBase, HwEnd, "ScreenFade", strlen("ScreenFade"));
-	PVOID ClientPtr = (PVOID)*(PDWORD)(FindReference(HwBase, HwEnd, Address) + 0x13); // all patch
-
-	if (FarProc((DWORD)ClientPtr, HwBase, HwEnd))
-		Log("[Hooking] Failed find Client ptr.");
-
-	Log("[Hooking] Found Client ptr. at: 0x%X", (DWORD)ClientPtr);
-	return ClientPtr;
-}
-
-PVOID AutoOffset::EngineFuncs()
-{
-	DWORD Address = (DWORD)FindMemoryClone(HwBase, HwEnd, "ScreenFade", strlen("ScreenFade"));
-	PVOID EnginePtr = (PVOID)*(PDWORD)(FindReference(HwBase, HwEnd, Address) + 0x0D); // 0x0D CSNZ Engine ptr. by Jusic
-
-	if (FarProc((DWORD)EnginePtr, HwBase, HwEnd))
-		Log("[Hooking] Failed find Engine ptr.");
-
-	Log("[Hooking] Found Engine ptr. at: 0x%X", (DWORD)EnginePtr);
-	return EnginePtr;
-}
-
-void AutoSpam()
-{
-	while (1)
-	{
-		if (cvar.autospam) {
-			g_pEngine->pfnClientCmd("say ""vk.com/hardhook ~ CSN:Z hack :3""");
-			Sleep(1000);
-			g_pEngine->pfnClientCmd("say ""Hard Hook - Perfect Anti-Turk system!"""); //Can Varol can suck my peepee btw
-			Sleep(1000);
-		}
-	}
-}
-
-bool AutoOffset::FindPattern(const BYTE* pData, const BYTE* bMask, const char* szMask)
-{
-	for (; *szMask; ++szMask, ++pData, ++bMask)
-		if (*szMask != 'x' && *pData != *bMask)
-			return false;
-
-	return (*szMask) == NULL;
-}
-
-engine_studio_api_t* AutoOffset::GetEngineStudio()
-{
-	static DWORD dwEngineStudio;
-
-	if (!dwEngineStudio)
-	{
-		dwEngineStudio = FindPattern((BYTE*)HwBase, (BYTE*)"\x68\x00\x00\x00\x00\x68\x00\x00\x00\x00\x6A\x01\xFF\xD0\x83\xC4\x0C", "x????x????xxxxxxx");
-		dwEngineStudio = *(DWORD*)(dwEngineStudio + 0x1);
-	}
-
-	return (engine_studio_api_t*)dwEngineStudio;
-}
-
-CGameEvents* AutoOffset::GetFirstEvent()
-{
-
-	static DWORD dwFirstEvent;
-
-	if (!dwFirstEvent)
-	{
-		dwFirstEvent = FindPattern((BYTE*)HwBase, (BYTE*)"\x8B\x15\x00\x00\x00\x00\x89\x46\x04\x8B\x4C\x24\x14", "xx????xxxxxxx");
-		dwFirstEvent = *(DWORD*)(*(DWORD*)(dwFirstEvent + 0x2));
-	}
-
-	return (CGameEvents*)dwFirstEvent;
-}
-
-CUserMessageHook* AutoOffset::GetFirstUserMsg()
-{
-	static DWORD dwFirstUserMsg;
-
-	if (!dwFirstUserMsg)
-	{
-		dwFirstUserMsg = FindPattern((BYTE*)HwBase, (BYTE*)"\x8B\x35\x00\x00\x00\x00\x85\xF6\x74\x0B", "xx????xxxx");
-		dwFirstUserMsg = *(DWORD*)(*(DWORD*)(dwFirstUserMsg + 0x2));
-	}
-
-	return (CUserMessageHook*)dwFirstUserMsg;
-}
-
-TpfnEventCallback AutoOffset::HookEvent(const char* pszEventName, TpfnEventCallback pfnCallbackFunction) //by sk0r
-																										 //but a bit modifyed by me
-{
-	if ((!pszEventName) || (!pfnCallbackFunction))														 //Hook an event handler
-		return NULL;
-
-	CGameEvents* pElement = GetFirstEvent();															 //Get first element
-	if (!pElement)
-		return NULL;
-
-	while (pElement) {																					 //While pointer not NULL
-		if (strcmp(pElement->szName, pszEventName) == 0) {												 //If event name has been found
-			TpfnEventCallback pOrig = pElement->pFunction;												 //Backup original function
-			pElement->pFunction = pfnCallbackFunction;													 //Replace function address
-			return pOrig;
-		}
-
-		pElement = pElement->pNext;																		 //Go to next element
-	}
-
-	return NULL;
 }

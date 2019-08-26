@@ -17,12 +17,11 @@ struct cvars_s {				//квары
 	int aimbot, aimsmooth, aimpreset, rcs, fov, drawfov;
 	int noscope, aimthrough, autoshot, nofog, target;
 	int esp, esptriangles, esplines, espbox;
-	int fullbright;
 
 	float stand_h, duck_h, aimdiff, aimheight_s, aimheight_d;
 
 	/* Developer Stuff */
-	int debug, espdebug, autospam;
+	int debug, espdebug;
 };
 
 struct colors_s {
@@ -44,11 +43,6 @@ struct keys_s {					//клавиши для меню
 struct team_s {			//хранение вертексов
 	char* name[52];
 	int verts[30];
-
-	/* немного дерьма */
-	/*int vert01, vert02, vert03, vert04, vert05, vert06, vert07, vert08, vert09, vert10, vert11, vert12;
-	int	vert13, vert14, vert15, vert16, vert17, vert18, vert19, vert20, vert21, vert22, vert23, vert24;
-	int vert25, vert26, vert27, vert28, vert29, vert30;*/
 };
 
 struct player_s {		//данные о модели игрока
@@ -62,16 +56,6 @@ struct player_s {		//данные о модели игрока
 	long headX, headY;
 	bool dead, get, visible;
 };
-
-//struct offset_s {		//хранение оффсетов
-//	float s, d;
-//	char npart1[52];
-//	char npart2[52];
-//	char npart3[52];
-//	char npart4[52];
-//	char npart5[52];
-//	char name[256];
-//};
 
 const int vertMin = 1500;
 const int vertMax = 5000;

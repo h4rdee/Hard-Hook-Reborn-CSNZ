@@ -1,8 +1,9 @@
 #pragma once
 
+#define _CRT_SECURE_NO_WARNINGS
+
 #include "OpenGL32.h"
 #include "Structs.h"
-#include "SDK.h"
 
 typedef struct
 {
@@ -11,28 +12,18 @@ typedef struct
 
 typedef struct Player_t
 {
-	char *Name, *Model;
+	char* Name, * Model;
 } Player_s;
 
-typedef void(__cdecl *TpfnEventCallback)(struct event_args_s *args);
-										// ^ by sk0r
+typedef void(__cdecl* TpfnEventCallback)(struct event_args_s* args);
+// ^ by sk0r
 
 struct CGameEvents
 {
-	CGameEvents *pNext;
-	char *szName; //0x0004 
+	CGameEvents* pNext;
+	char* szName; //0x0004 
 	TpfnEventCallback pFunction; //0x0008 
 };//Size=0x000C
-
-struct CUserMessageHook					//geecko
-{
-	DWORD unkn1;						//0x0000
-	DWORD unkn2;						//0x0004
-	char szName[16];					//0x0008 
-	CUserMessageHook *pNext;			//0x0018 
-	pfnUserMsgHook pFunction;			//0x001C 
-};										//Size=0x0020
-
 
 void AutoSpam();
 
@@ -47,16 +38,6 @@ extern team_s     team[3];
 extern keys_s     keys;
 extern menu_s     menu;
 extern cvars_s    cvar;
-
-extern SCREENINFO ScreenInfo;
-
-extern cl_clientfunc_t *g_pClient;
-extern cl_enginefunc_t *g_pEngine;
-extern engine_studio_api_t *g_pStudio;
-extern cl_clientfunc_t g_Client;
-extern cl_enginefunc_t g_Engine;
-extern engine_studio_api_t g_Studio;
-extern PUserMsg pUserMsgBase;
 
 class HackUtils {						 //almost everything done by me, so credits to me:D
 public:
@@ -88,11 +69,6 @@ public:
 	bool isZombie(long vertcount);
 	bool Validate(HINSTANCE hinstDll);
 	float GetWidth(long dist);
-
-	//w2s by godly/////////////////////////////////////////////////////////////////////////////////////////////
-	bool GetWorldToScreenMatrix(WorldToScreenMatrix_t *pWorldToScreenMatrix, float *flOrigin, float *flOut);
-	bool WorldToScreen(float *flOrigin, float *flOut);
-	///////////////////////////////////////////////////////////////////////////////////////////////////////////
 }; extern HackUtils Utils;
 
 class AutoOffset //thx CSX community
@@ -115,9 +91,7 @@ public:
 	PVOID EngineFuncs();
 
 	/////////////////////////////////////////////////////////// not from them, geecko made it /////
-	engine_studio_api_t* AutoOffset::GetEngineStudio();
 	bool FindPattern(const BYTE* pData, const BYTE* bMask, const char* szMask);
-	CUserMessageHook* GetFirstUserMsg();
 	CGameEvents* GetFirstEvent();
 	TpfnEventCallback HookEvent(const char* pszEventName, TpfnEventCallback pfnCallbackFunction);
 	///////////////////////////////////////////////////////////////////////////////////////////////
@@ -127,7 +101,7 @@ private:
 	DWORD ClBase, ClSize, ClEnd;
 	DWORD UiBase, UiSize, UiEnd;
 	DWORD HlBase, HlSize, HlEnd;
-	BOOL  __comparemem(const UCHAR *buff1, const UCHAR *buff2, UINT size);
+	BOOL  __comparemem(const UCHAR* buff1, const UCHAR* buff2, UINT size);
 	ULONG __findmemoryclone(const ULONG start, const ULONG end, const ULONG clone, UINT size);
 	ULONG __findreference(const ULONG start, const ULONG end, const ULONG address);
 	DWORD FarProc(const DWORD Address, DWORD LB, DWORD HB);
